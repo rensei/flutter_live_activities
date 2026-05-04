@@ -550,10 +550,46 @@ public class LiveActivitiesPlugin: NSObject, FlutterPlugin, FlutterStreamHandler
         public typealias LiveDeliveryData = ContentState
         
         public struct ContentState: Codable, Hashable {
-            var appGroupId: String
+            var appGroupId: String?
+
+            init(appGroupId: String? = nil) {
+                self.appGroupId = appGroupId
+            }
+
+            init(from decoder: Decoder) throws {
+                let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+                appGroupId = try container.decodeIfPresent(String.self, forKey: DynamicCodingKeys("appGroupId"))
+            }
         }
         
-        var id = UUID()
+        var id: UUID
+
+        init(id: UUID = UUID()) {
+            self.id = id
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+            id = try container.decodeIfPresent(UUID.self, forKey: DynamicCodingKeys("id")) ?? UUID()
+        }
+    }
+
+    struct DynamicCodingKeys: CodingKey {
+        var stringValue: String
+        var intValue: Int?
+
+        init(_ stringValue: String) {
+            self.stringValue = stringValue
+            intValue = nil
+        }
+
+        init?(stringValue: String) {
+            self.init(stringValue)
+        }
+
+        init?(intValue: Int) {
+            return nil
+        }
     }
     
     @available(iOS 16.1, *)
@@ -626,7 +662,28 @@ public class LiveActivitiesPlugin: NSObject, FlutterPlugin, FlutterStreamHandler
         }
 
         tokenObservedActivityIds.insert(activity.id)
+        emitCurrentTokenIfPresent(activity)
         monitorTokenChanges(activity)
+    }
+
+    @available(iOS 16.1, *)
+    private func emitCurrentTokenIfPresent<T: ActivityAttributes>(_ activity: Activity<T>) {
+        guard let data = activity.pushToken else {
+            return
+        }
+
+        let pushToken = data.map { String(format: "%02x", $0) }.joined()
+        guard !pushToken.isEmpty else {
+            return
+        }
+
+        DispatchQueue.main.async {
+            var response: Dictionary<String, Any> = Dictionary()
+            response["token"] = pushToken
+            response["activityId"] = activity.id
+            response["status"] = "active"
+            self.activityEventSink?.self(response)
+        }
     }
     
     @available(iOS 16.1, *)
