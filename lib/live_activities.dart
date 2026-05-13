@@ -53,6 +53,9 @@ class LiveActivities {
   /// [iOSEnableRemoteUpdates] indicates if the live activity should allow remote updates via push notifications.
   /// Default is true. If set to false, the live activity will not receive remote updates.
   /// If set to true, Push Notifications capability must be enabled in your Xcode project.
+  ///
+  /// [relevanceScore] sets the ActivityKit relevance score used by iOS to order
+  /// multiple Live Activities for the same app. This only affects iOS 16.2+.
   Future<String?> createActivity(
     String activityId,
     Map<String, dynamic> data, {
@@ -60,6 +63,7 @@ class LiveActivities {
     bool removeWhenAppIsKilled = false,
     bool iOSEnableRemoteUpdates = true,
     Duration? staleIn,
+    double? relevanceScore,
   }) async {
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       await _appGroupsFileService.sendFilesToAppGroups(data);
@@ -71,6 +75,7 @@ class LiveActivities {
       removeWhenAppIsKilled: removeWhenAppIsKilled,
       iOSEnableRemoteUpdates: iOSEnableRemoteUpdates,
       staleIn: staleIn,
+      relevanceScore: relevanceScore,
     );
   }
 
@@ -78,11 +83,16 @@ class LiveActivities {
   /// You can get an activity id by calling [createActivity].
   /// Data is a map of key/value pairs that will be transmitted to your iOS extension widget.
   /// Map is limited to String keys and values for now.
+  ///
+  /// [relevanceScore] updates the ActivityKit relevance score used by iOS to
+  /// order multiple Live Activities for the same app. This only affects iOS
+  /// 16.2+.
   Future updateActivity(
     String activityId,
     Map<String, dynamic> data, {
     String? activityTag,
     AlertConfig? alertConfig,
+    double? relevanceScore,
   }) async {
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       await _appGroupsFileService.sendFilesToAppGroups(data);
@@ -92,6 +102,7 @@ class LiveActivities {
       activityTag,
       data,
       alertConfig,
+      relevanceScore: relevanceScore,
     );
   }
 
@@ -102,6 +113,7 @@ class LiveActivities {
     bool removeWhenAppIsKilled = false,
     bool iOSEnableRemoteUpdates = true,
     Duration? staleIn,
+    double? relevanceScore,
   }) async {
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       await _appGroupsFileService.sendFilesToAppGroups(data);
@@ -113,6 +125,7 @@ class LiveActivities {
       removeWhenAppIsKilled: removeWhenAppIsKilled,
       iOSEnableRemoteUpdates: iOSEnableRemoteUpdates,
       staleIn: staleIn,
+      relevanceScore: relevanceScore,
     );
   }
 
