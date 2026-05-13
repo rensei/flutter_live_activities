@@ -487,12 +487,24 @@ class CustomLiveActivityManager(context: Context) :
     'quantity': 1,
   };
 
-  _liveActivitiesPlugin.createActivity(activityModel);
+  _liveActivitiesPlugin.createActivity('pizza-order-42', activityModel);
   ```
 
   > You can pass all type of data you want but keep it mind it should be
   > compatible with [`UserDefaults`](https://developer.apple.com/documentation/foundation/userdefaults)
   > for iOS.
+  >
+  > On iOS 16.2+, you can optionally pass a `relevanceScore` to influence which
+  > Live Activity is shown in the Dynamic Island when multiple activities are
+  > active for your app.
+  >
+  > ```dart
+  > _liveActivitiesPlugin.createActivity(
+  >   'pizza-order-42',
+  >   activityModel,
+  >   relevanceScore: 100,
+  > );
+  > ```
 
   <br />
 
@@ -630,6 +642,10 @@ _liveActivitiesPlugin.urlSchemeStream().listen((schemeData) {
 You can update live activity directly in your app using the `updateActivity()`
 method, but if your app was killed or in the background, you can’t update the
 notification...
+
+On iOS 16.2+, you can also pass a `relevanceScore` when creating or updating an
+activity to control which one is prioritized in the Dynamic Island when several
+Live Activities are active for your app.
 
 To do this, you can update it using Push Notification on a server.
 
