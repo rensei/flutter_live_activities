@@ -5,11 +5,13 @@ import 'package:live_activities/live_activities_method_channel.dart';
 void main() {
   MethodChannelLiveActivities platform = MethodChannelLiveActivities();
   const MethodChannel channel = MethodChannel('live_activities');
+  MethodCall? lastMethodCall;
 
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
     handler(MethodCall methodCall) async {
+      lastMethodCall = methodCall;
       switch (methodCall.method) {
         case 'createActivity':
           return 'ACTIVITY_ID';
@@ -35,13 +37,39 @@ void main() {
 
   test('createActivity', () async {
     expect(
-      await platform.createActivity('ACTIVITY_ID', null, {}),
+      await platform.createActivity(
+        'ACTIVITY_ID',
+        null,
+        {},
+        relevanceScore: 100,
+      ),
       'ACTIVITY_ID',
+    );
+    expect(
+      ((lastMethodCall?.arguments as Map<Object?, Object?>)['relevanceScore']
+              as num?)
+          ?.toDouble(),
+      100.0,
     );
   });
 
   test('updateActivity', () async {
-    expect(await platform.updateActivity('ACTIVITY_ID', null, {}), null);
+    expect(
+      await platform.updateActivity(
+        'ACTIVITY_ID',
+        null,
+        {},
+        null,
+        50,
+      ),
+      null,
+    );
+    expect(
+      ((lastMethodCall?.arguments as Map<Object?, Object?>)['relevanceScore']
+              as num?)
+          ?.toDouble(),
+      50.0,
+    );
   });
 
   test('endActivity', () async {
