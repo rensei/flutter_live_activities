@@ -102,7 +102,7 @@ class LiveActivities {
       activityTag,
       data,
       alertConfig,
-      relevanceScore: relevanceScore,
+      relevanceScore,
     );
   }
 
